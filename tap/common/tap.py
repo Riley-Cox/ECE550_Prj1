@@ -78,11 +78,11 @@ class Tap(Tap_GPIO):
         :type tdo_str: str
 
         """
-        length = len(tdi_str)
-        for i in range(length-1):
+        
+        for i in range(5):
             x = int(tdi_str[i])
             toggle_tck(0,x)
-        toggle_tck(1, int(tdi_str[length-1]))
+        toggle_tck(1, int(tdi_str[5))
         pass
 
     def shiftOutData(self, length):
