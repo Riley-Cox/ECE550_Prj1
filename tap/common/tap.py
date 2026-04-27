@@ -45,17 +45,30 @@ class Tap(Tap_GPIO):
 
     def reset2ShiftIR(self):
         """ shift TAP state from reset to shiftIR """
-        
+        toggle_tck(0, 0)
+        toggle_tck(1, 0)
+        toggle_tck(1, 0)
+        toggle_tck(0, 0)
+        toggle_tck(0, 0)
         pass 
 
     def exit1IR2ShiftDR(self):
         """ shift TAP state from exit1IR to shiftDR """
-
+        
+        toggle_tck(1, 0)
+        toggle_tck(1, 0)
+        toggle_tck(1, 0)
+        toggle_tck(0, 0)
+        toggle_tck(0, 0)
         pass
 
     def exit1DR2ShiftIR(self):
         """ shift TAP state from exit1DR to shiftIR """
-        
+        toggle_tck(1, 0)
+        toggle_tck(1, 0)
+        toggle_tck(1, 0)
+        toggle_tck(0, 0)
+        toggle_tck(0, 0)
         pass
 
     def shiftInData(self, tdi_str):    
@@ -65,7 +78,11 @@ class Tap(Tap_GPIO):
         :type tdo_str: str
 
         """
-
+        length = len(tdi_str)
+        for i in range(length-1):
+            x = int(tdi_str[i])
+            toggle_tck(0,x)
+        toggle_tck(1, int(tdi_str[length-1]))
         pass
 
     def shiftOutData(self, length):
@@ -76,8 +93,16 @@ class Tap(Tap_GPIO):
         :returns: int - TDO data
 
         """
+        x = 0
+        for i in range(length-1):
+             x = (x >> 1) | self.read_tdo_data()
+             toggle_tck(0, 0)
+        
+        x = (x >> 1) | self.read_tdo_data()
+        toggle_tck(1, 0)
+             
 
-        return 0
+        return x
 
     def getChainLength(self):
         """ get chain length
