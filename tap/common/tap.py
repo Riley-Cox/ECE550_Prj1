@@ -95,10 +95,10 @@ class Tap(Tap_GPIO):
         """
         x = 0
         for i in range(length-1):
-             x = (x >> 1) | self.read_tdo_data()
+             x = (x >> 1) | read_tdo_data()
              toggle_tck(0, 0)
         
-        x = (x >> 1) | self.read_tdo_data()
+        x = (x >> 1) | read_tdo_data()
         toggle_tck(1, 0)
              
 
