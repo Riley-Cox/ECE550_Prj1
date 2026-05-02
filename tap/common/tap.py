@@ -40,7 +40,7 @@ class Tap(Tap_GPIO):
         """ set TAP state to Test_Logic_Reset """
         # assert TMS for 5 TCKs in a row
         for i in range(5):
-            toggle_tck(1, 0)
+            self.toggle_tck(1, 0)
         pass
 
     def reset2ShiftIR(self):
@@ -82,7 +82,7 @@ class Tap(Tap_GPIO):
         for i in range(5):
             x = int(tdi_str[i])
             toggle_tck(0,x)
-        toggle_tck(1, int(tdi_str[5))
+        toggle_tck(1, int(tdi_str[5]))
         pass
 
     def shiftOutData(self, length):
@@ -96,7 +96,7 @@ class Tap(Tap_GPIO):
         x = 0
         for i in range(length-1):
              x = (x >> 1) | read_tdo_data()
-             toggle_tck(0, 0)
+             self.toggle_tck(0, 0)
         
         x = (x >> 1) | read_tdo_data()
         toggle_tck(1, 0)
@@ -110,5 +110,29 @@ class Tap(Tap_GPIO):
         :returns: int -- chain length	
 
         """
+        self.reset()
+        self.reset2ShiftIR()
+        
+        for i in range(self.maz_length -1):
+            self.toggle_tck(0, 1)
+            self.toggle_tck(1, 1)
+            
+        self.exit1IR2ShiftDR()
+        
+        for i in range(self.max_length - 1):
+                self.togle_tck(0, 0)
+                self.toggle_tck(0, 0)
+        
+        self.toggle_tck(0, 1)
+        
+        chain_length = 0
+        for i in range(self.max_length):
+            tdo_bit = read_tdo_data()
+            self.toggle_tck(0, 0)
+            if tdo_bit:
+                chain_lemgth = i + 1
+                break
+            
+        self.reset()
 
-        return 0
+        return chain_length
