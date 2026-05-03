@@ -99,7 +99,7 @@ class Tap(Tap_GPIO):
              self.toggle_tck(0, 0)
         
         x |= (read_tdo_data() << (length-1))
-        toggle_tck(1, 0)
+        self.toggle_tck(1, 0)
              
 
         return x
