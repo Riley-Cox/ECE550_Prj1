@@ -45,30 +45,30 @@ class Tap(Tap_GPIO):
 
     def reset2ShiftIR(self):
         """ shift TAP state from reset to shiftIR """
-        toggle_tck(0, 0)
-        toggle_tck(1, 0)
-        toggle_tck(1, 0)
-        toggle_tck(0, 0)
-        toggle_tck(0, 0)
+        self.toggle_tck(0, 0)
+        self.toggle_tck(1, 0)
+        self.toggle_tck(1, 0)
+        self.toggle_tck(0, 0)
+        self.toggle_tck(0, 0)
         pass 
 
     def exit1IR2ShiftDR(self):
         """ shift TAP state from exit1IR to shiftDR """
         
-        toggle_tck(1, 0)
-        toggle_tck(1, 0)
-        toggle_tck(1, 0)
-        toggle_tck(0, 0)
-        toggle_tck(0, 0)
+        self.toggle_tck(1, 0)
+        self.toggle_tck(1, 0)
+        self.toggle_tck(1, 0)
+        self.toggle_tck(0, 0)
+        self.toggle_tck(0, 0)
         pass
 
     def exit1DR2ShiftIR(self):
         """ shift TAP state from exit1DR to shiftIR """
-        toggle_tck(1, 0)
-        toggle_tck(1, 0)
-        toggle_tck(1, 0)
-        toggle_tck(0, 0)
-        toggle_tck(0, 0)
+        self.toggle_tck(1, 0)
+        self.toggle_tck(1, 0)
+        self.toggle_tck(1, 0)
+        self.toggle_tck(0, 0)
+        self.toggle_tck(0, 0)
         pass
 
     def shiftInData(self, tdi_str):    
@@ -81,8 +81,8 @@ class Tap(Tap_GPIO):
         
         for i in range(5):
             x = int(tdi_str[i])
-            toggle_tck(0,x)
-        toggle_tck(1, int(tdi_str[5]))
+            self.toggle_tck(0,x)
+        self.toggle_tck(1, int(tdi_str[5]))
         pass
 
     def shiftOutData(self, length):
@@ -95,10 +95,10 @@ class Tap(Tap_GPIO):
         """
         x = 0
         for i in range(length-1):
-             x = (x >> 1) | read_tdo_data()
+             x |= (read_tdo_data() << i)
              self.toggle_tck(0, 0)
         
-        x = (x >> 1) | read_tdo_data()
+        x |= (read_tdo_data() << (length-1))
         toggle_tck(1, 0)
              
 
@@ -113,7 +113,7 @@ class Tap(Tap_GPIO):
         self.reset()
         self.reset2ShiftIR()
         
-        for i in range(self.maz_length -1):
+        for i in range(self.max_length -1):
             self.toggle_tck(0, 1)
             self.toggle_tck(1, 1)
             
