@@ -5,7 +5,6 @@
 # --------------------------------------------------------
 # Purpose: TAP Controller Smoke Tests
 ##########################################################
-
 import os, sys
 from tap.common.loopback import *
 from tap.common.tap import *
@@ -17,12 +16,10 @@ class smoke(unittest.TestCase):
     def setUp(self):
         """ fires before each test
         Setting up for the test
-    
         """
         log_level = LOG_LEVEL 
         self.logger = get_logger(self.id(), log_level)
-        log(self.logger, 'info', '{}Running {}'.format(color_map['highlight'],self.id()))
-
+        log(self.logger, 'info', '{}Running {}'.format(color_map['highlight'], self.id()))
         self.tap = Tap(log_level=log_level)
         self.loopback_monitor = LoopBack(log_level=log_level)
         self.loopback_monitor.set_monitor()
@@ -30,20 +27,36 @@ class smoke(unittest.TestCase):
     def tearDown(self):
         """ fires after each test
         Cleaning up after the test
-    
         """
         self.loopback_monitor.remove_monitor()
         self.tap.clean_up()
-        log(self.logger, 'info', '{}Done with {}\n'.format(color_map['highlight'],self.id()))    
+        log(self.logger, 'info', '{}Done with {}\n'.format(color_map['highlight'], self.id()))    
     
     def testReset(self):
         self.tap.reset()
-        self.assertEqual("Test_Logic_Reset",self.loopback_monitor.cur_state)
+        self.assertEqual("Test_Logic_Reset", self.loopback_monitor.cur_state)
 
-    @unittest.skip
     def testReset2ShiftIR(self):
-        pass
+        """ Test TAP navigates correctly from Test_Logic_Reset to Shift_IR state """
+        self.tap.reset()
+        self.assertEqual("Test_Logic_Reset", self.loopback_monitor.cur_state)
+        self.tap.reset2ShiftIR()
+        self.assertEqual("Shift_IR", self.loopback_monitor.cur_state)
 
-    @unittest.skip
     def testReadDeviceCode(self):
-        pass
+        """ Test reading 32-bit IDCODE from device via JTAG """
+        self.tap.reset()
+        self.assertEqual("Test_Logic_Reset", self.loopback_monitor.cur_state)
+        self.tap.reset2ShiftIR()
+        self.assertEqual("Shift_IR", self.loopback_monitor.cur_state)
+        # Shift in IDCODE instruction (0b1001 = standard IDCODE for most JTAG devices)
+        self.tap.shiftInData('1001')
+        # Move from Exit1_IR through to Shift_DR
+        self.tap.exit1IR2ShiftDR()
+        self.assertEqual("Shift_DR", self.loopback_monitor.cur_state)
+        # Read 32-bit device ID code
+        device_code = self.tap.shiftOutData(32)
+        # Valid IDCODE: not 0 (disconnected) and not 0xFFFFFFFF (no device)
+        self.assertNotEqual(0, device_code, "Device code should not be zero")
+        self.assertNotEqual(0xFFFFFFFF, device_code, "Device code should not be all 1s")
+        log(self.logger, 'info', 'Device IDCODE: 0x{:08X}'.format(device_code))
