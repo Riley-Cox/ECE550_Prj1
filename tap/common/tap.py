@@ -78,7 +78,7 @@ class Tap(Tap_GPIO):
         :type tdo_str: str
 
         """
-        tdi_str = tdi_str[::-1] # Reverse tdi so we shift LSB first
+        #tdi_str = tdi_str[::-1] # Reverse tdi so we shift LSB first
         for i in range(5):
             x = int(tdi_str[i])
             self.toggle_tck(0,x)
