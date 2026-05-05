@@ -50,7 +50,7 @@ class smoke(unittest.TestCase):
         self.tap.reset2ShiftIR()
         self.assertEqual("Shift_IR", self.loopback_monitor.cur_state)
         # Shift in IDCODE instruction (0b1001 = standard IDCODE for most JTAG devices)
-        self.tap.shiftInData('1001')
+        self.tap.shiftInData('100100')
         # Move from Exit1_IR through to Shift_DR
         self.tap.exit1IR2ShiftDR()
         self.assertEqual("Shift_DR", self.loopback_monitor.cur_state)
