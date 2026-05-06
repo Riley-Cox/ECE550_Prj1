@@ -30,9 +30,9 @@ class Tap(Tap_GPIO):
         :type tdi: int (0/1)
 
         """
-        set_io_data(tms, tdi, 0)
-        set_io_data(tms, tdi, 1)
-        set_io_data(tms, tdi, 0)
+        self.set_io_data(tms, tdi, 0)
+        self.set_io_data(tms, tdi, 1)
+        self.set_io_data(tms, tdi, 0)
         
         pass
        
@@ -95,13 +95,12 @@ class Tap(Tap_GPIO):
         """
         x = 0
         for i in range(length-1):
-             x |= (read_tdo_data() << i)
+             x |= (self.read_tdo_data() << i)
              self.toggle_tck(0, 0)
         
-        x |= (read_tdo_data() << (length-1))
+        x |= (self.read_tdo_data() << (length-1))
         self.toggle_tck(1, 0)
              
-
         return x
 
     def getChainLength(self):
@@ -112,25 +111,27 @@ class Tap(Tap_GPIO):
         """
         self.reset()
         self.reset2ShiftIR()
-        
+        print("Starting Chain length") 
         for i in range(self.max_length -1):
             self.toggle_tck(0, 1)
             self.toggle_tck(1, 1)
             
         self.exit1IR2ShiftDR()
+        print("Continuing Chain length") 
         
         for i in range(self.max_length - 1):
-                self.togle_tck(0, 0)
+                self.toggle_tck(0, 0)
                 self.toggle_tck(0, 0)
         
         self.toggle_tck(0, 1)
         
+        print("Continuing Chain length once more") 
         chain_length = 0
         for i in range(self.max_length):
-            tdo_bit = read_tdo_data()
+            tdo_bit = self.read_tdo_data()
             self.toggle_tck(0, 0)
             if tdo_bit:
-                chain_lemgth = i + 1
+                chain_length = i + 1
                 break
             
         self.reset()
