@@ -103,37 +103,33 @@ class Tap(Tap_GPIO):
              
         return x
 
-    def getChainLength(self):
-        """ get chain length
-
-        :returns: int -- chain length	
-
-        """
-        self.reset()
-        self.reset2ShiftIR()
-        print("Starting Chain length") 
-        for i in range(self.max_length -1):
-            self.toggle_tck(0, 1)
-            self.toggle_tck(1, 1)
-            
-        self.exit1IR2ShiftDR()
-        print("Continuing Chain length") 
+  def getChainLength(self):
+    """ get chain length using bypass register method
+    :returns: int -- chain length	
+    """
+    self.reset()
+    self.reset2ShiftIR()
+    
+    # Select BYPASS instruction (all 1s = 111111)
+    self.shiftInData('1' * 6)
+    
+    # Move to Shift_DR
+    self.exit1IR2ShiftDR()
+    
+    # Fill bypass register with 0s
+    for i in range(self.max_length - 1):
+        self.toggle_tck(0, 0)
+    
+    # Shift in a single 1 and count until it appears on TDO
+    self.toggle_tck(0, 1)
+    
+    chain_length = 0
+    for i in range(self.max_length):
+        tdo_bit = self.read_tdo_data()
+        self.toggle_tck(0, 0)
+        if tdo_bit:
+            chain_length = i + 1
+            break
         
-        for i in range(self.max_length - 1):
-                self.toggle_tck(0, 0)
-                self.toggle_tck(0, 0)
-        
-        self.toggle_tck(0, 1)
-        
-        print("Continuing Chain length once more") 
-        chain_length = 0
-        for i in range(self.max_length):
-            tdo_bit = self.read_tdo_data()
-            self.toggle_tck(0, 0)
-            if tdo_bit:
-                chain_length = i + 1
-                break
-            
-        self.reset()
-
-        return chain_length
+    self.reset()
+    return chain_length
