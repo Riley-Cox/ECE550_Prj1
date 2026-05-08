@@ -57,7 +57,6 @@ class Tap(Tap_GPIO):
         
         self.toggle_tck(1, 0)
         self.toggle_tck(1, 0)
-        self.toggle_tck(1, 0)
         self.toggle_tck(0, 0)
         self.toggle_tck(0, 0)
         pass
@@ -79,10 +78,10 @@ class Tap(Tap_GPIO):
 
         """
         #tdi_str = tdi_str[::-1] # Reverse tdi so we shift LSB first
-        for i in range(5):
+        for i in range(len(tdi_str)-1):
             x = int(tdi_str[i])
             self.toggle_tck(0,x)
-        self.toggle_tck(1, int(tdi_str[5]))
+        self.toggle_tck(1, int(tdi_str[-1]))
         pass
 
     def shiftOutData(self, length):
@@ -103,33 +102,36 @@ class Tap(Tap_GPIO):
              
         return x
 
-  def getChainLength(self):
-    """ get chain length using bypass register method
-    :returns: int -- chain length	
-    """
-    self.reset()
-    self.reset2ShiftIR()
-    
-    # Select BYPASS instruction (all 1s = 111111)
-    self.shiftInData('1' * 6)
-    
-    # Move to Shift_DR
-    self.exit1IR2ShiftDR()
-    
-    # Fill bypass register with 0s
-    for i in range(self.max_length - 1):
-        self.toggle_tck(0, 0)
-    
-    # Shift in a single 1 and count until it appears on TDO
-    self.toggle_tck(0, 1)
-    
-    chain_length = 0
-    for i in range(self.max_length):
-        tdo_bit = self.read_tdo_data()
-        self.toggle_tck(0, 0)
-        if tdo_bit:
-            chain_length = i + 1
-            break
+    def getChainLength(self):
+        """ get chain length using bypass register method
+        :returns: int -- chain length	
+        """
+        print("We are getting chain length")
+        self.reset()
+        self.reset2ShiftIR()
         
-    self.reset()
-    return chain_length
+        print("We are getting chain length")
+        # Select BYPASS instruction (all 1s = 111111)
+        self.shiftInData('1' * 6)
+        
+        # Move to Shift_DR
+        self.exit1IR2ShiftDR()
+        
+        # Fill bypass register with 0s
+        for i in range(self.max_length - 950):
+            self.toggle_tck(0, 0)
+        
+        print("We are getting chain length")
+        # Shift in a single 1 and count until it appears on TDO
+        self.toggle_tck(0, 1)
+        
+        chain_length = 0
+        for i in range(self.max_length):
+            tdo_bit = self.read_tdo_data()
+            self.toggle_tck(0, 0)
+            if tdo_bit:
+                chain_length = i + 1
+                break
+            
+        self.reset()
+        return chain_length

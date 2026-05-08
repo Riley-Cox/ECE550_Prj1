@@ -6,6 +6,7 @@
 # Purpose: TAP Controller Smoke Tests
 ##########################################################
 import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 from tap.common.loopback import *
 from tap.common.tap import *
 import unittest
@@ -57,6 +58,7 @@ class smoke(unittest.TestCase):
         # Read 32-bit device ID code
         device_code = self.tap.shiftOutData(32)
         # Valid IDCODE: not 0 (disconnected) and not 0xFFFFFFFF (no device)
+        print(hex(device_code))
         self.assertNotEqual(0, device_code, "Device code should not be zero")
         self.assertNotEqual(0xFFFFFFFF, device_code, "Device code should not be all 1s")
         log(self.logger, 'info', 'Device IDCODE: 0x{:08X}'.format(device_code))
