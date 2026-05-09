@@ -26,8 +26,12 @@ class LoopBack(Tap_Model):
         Tap_Model.__init__(self)
 
     def set_monitor(self):
-        """ set up interrupt based event detection for loopback pins """ 
-        GPIO.add_event_detect(TCK_LOOPBACK, GPIO.RISING, callback=self.tck_callback,bouncetime=10)
+    """ set up interrupt based event detection for loopback pins """ 
+    try:
+        GPIO.remove_event_detect(TCK_LOOPBACK)
+    except:
+        pass
+    GPIO.add_event_detect(TCK_LOOPBACK, GPIO.RISING, callback=self.tck_callback, bouncetime=10)
 
     def remove_monitor(self):
         """ remove interrupt based event detection for loopback pins """ 
